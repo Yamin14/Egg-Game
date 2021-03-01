@@ -24,9 +24,14 @@ class Game(Widget):
 		self.neg = 1
 		self.x, self.y = 300, 100
 		self.game_over = False
+		self.scroll = False
+		self.flag = False
+		self.flag2 = True
+		self.scroll_speed = 5
+		self.positions = ["", "", "", "", "", ""]
 
 		#direction of movement of stick	
-		for i in range(5):
+		for i in range(6):
 			self.directions.append(1)
 		
 		#background
@@ -39,7 +44,7 @@ class Game(Widget):
 			Color(rgb=self.stick_color)
 			self.sticks.append(Rectangle(size=(self.stick_length, self.stick_height), pos=(300, 80)))
 			
-			for i in range(4):
+			for i in range(5):
 				self.sticks.append(Rectangle(size=(self.stick_length, self.stick_height), pos=(random.randint(1, 600), 380+(i*300))))
 		
 		#the egg
@@ -58,6 +63,7 @@ class Game(Widget):
 		#game over label
 		
 		Clock.schedule_interval(self.play, 0)
+		Clock.schedule_interval(self.scroll_func, 0)
 		
 	def play(self, dt):
 		#jumping
@@ -115,14 +121,75 @@ class Game(Widget):
 			self.game_over_label.text = f"""Game Over
 Score: {self.score}"""
 			self.speed = 0
+			self.scroll_speed = 0
 			self.jumping = False
 			self.game_over = True
+
+		#scroll screen
+		if self.y >= 680 and self.y <= 720:
+			if self.flag2 == True:
+				self.flag2 = False
+				self.scroll = True
+				self.flag = True
+
+	def scroll_func(self, dt):
+		if self.flag == True:
+			self.flag = False
+			for i in range(2):
+				self.directions.append(1)
+				
+			with self.canvas:
+				Color(rgb=self.stick_color)
+				for i in range(2):
+					if i == 0:
+						self.sticks.append(Rectangle(size=(self.stick_length, self.stick_height), pos=(random.randint(1, 600), 1880)))
+					elif i == 1:
+						self.sticks.append(Rectangle(size=(self.stick_length, self.stick_height), pos=(random.randint(1, 600), 2180)))
+				
+				for i in range(len(self.sticks)):
+					self.positions.append("")
+					self.positions[i] = self.sticks[i].pos[1]
+					
+		if self.scroll == True:
+			if self.y >= 100:
+				self.y -= self.scroll_speed
+			else:
+				self.scroll = False
+				self.flag2 = True
+			
+			self.egg.pos = (self.x, self.y)
+			for i in range(len(self.sticks)):
+				if self.sticks[i].pos[1] >= self.positions[i]-600:
+					self.sticks[i].pos = (self.sticks[i].pos[0], self.sticks[i].pos[1]-self.scroll_speed)
 			
 	def on_touch_down(self, touch):
 		if self.game_over == False:
 			self.jumping = True
 		if self.landed == True:
 			self.landed = False
+		if self.game_over == True:
+			self.game_over_label.text = ""
+			self.score = 0
+			self.speed = 3
+			self.scroll_speed = 5
+			self.jumping = False
+			self.game_over = False
+			self.jumping = False
+			self.landed = False
+			self.land_pos = 0
+			self.jump_count = 10
+			self.neg = 1
+			self.x, self.y = 300, 100
+			self.scroll = False
+			self.flag = False
+			for i in self.directions:
+				i = 1
+			z = len(self.sticks)
+			for i in range(z):
+				if i == 0:
+					self.sticks[i].pos = (300, 80+(i*300))	
+				else:
+					self.sticks[i].pos = (random.randint(1, 600), 80+(i*300))
 
 class MyApp(App):
 	def build(self):
