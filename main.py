@@ -91,6 +91,11 @@ class Game(Widget):
 							self.score += 1
 						self.land_pos = i
 						self.speed += 0.5
+						if self.y >= 680 and self.y <= 720:
+							if self.flag2 == True:
+								self.flag2 = False
+								self.scroll = True
+								self.flag = True
 
 		#direction update
 		for i in range(len(self.sticks)):
@@ -125,13 +130,7 @@ Score: {self.score}"""
 			self.jumping = False
 			self.game_over = True
 
-		#scroll screen
-		if self.y >= 680 and self.y <= 720:
-			if self.flag2 == True:
-				self.flag2 = False
-				self.scroll = True
-				self.flag = True
-
+	#scroll screen
 	def scroll_func(self, dt):
 		if self.flag == True:
 			self.flag = False
@@ -151,7 +150,7 @@ Score: {self.score}"""
 					self.positions[i] = self.sticks[i].pos[1]
 					
 		if self.scroll == True:
-			if self.y >= 100:
+			if self.y > 100:
 				self.y -= self.scroll_speed
 			else:
 				self.scroll = False
